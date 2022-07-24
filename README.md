@@ -35,6 +35,7 @@ I have no affiliation with any of the purchase links and receive no commission o
 - [Rust reference](https://book.avr-rust.com/)
 - [Emulator](https://wokwi.com/)
 - [Sample repo](https://github.com/q231950/avr-attiny85-rust)
+- [Some build troubleshooting](https://nercury.github.io/rust/embedded/experiments/2018/04/29/rust-embedded-01-discovery-vl-flipping-bits.html)
 
 ## Development setup
 
@@ -51,6 +52,9 @@ I have no affiliation with any of the purchase links and receive no commission o
 Required:
 
 - rustup
+- gcc-avr
+- avr-libc
+- Patience
 
 Optional (but recommended):
 
@@ -77,5 +81,5 @@ pre-commit run --all
 ## Compiling
 
 ```Bash
-cargo build -Z build-std=core --target avr-atmega328p.json --release
+cargo build -Z build-std=core --release
 ```
