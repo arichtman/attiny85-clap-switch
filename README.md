@@ -43,6 +43,9 @@ I have no affiliation with any of the purchase links and receive no commission o
 
 0. Open project using VSCode Devcontainers
 
+NB: You will need the mount directories to at least exist for this to load correctly.
+`mkdir -p $HOME/.local/share/cargo/registry $HOME/.config`
+
 ### PITA
 
 #### Prerequisites

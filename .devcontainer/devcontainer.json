@@ -25,7 +25,7 @@
   "mounts": [
     "source=${localEnv:HOME}/.config,target=/root/.config,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.local/share/cargo,target=/usr/local/cargo,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.local/share/cargo/registry,target=/usr/local/cargo/registry,type=bind,consistency=cached"
   ],
   "name": "ATTiny85 Clapper",
   "onCreateCommand": [
