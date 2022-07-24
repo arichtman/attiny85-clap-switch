@@ -1,0 +1,44 @@
+{
+  "build": {
+    "context": "..",
+    "dockerfile": "Containerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vadimcn.vscode-lldb",
+        "mutantdino.resourcemonitor",
+        "matklad.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "files.watcherExclude": {
+          "**/target/**": true
+        },
+        "lldb.executable": "/usr/bin/lldb",
+        "rust-analyzer.checkOnSave.command": "clippy"
+      }
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.config,target=/root/.config,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+  ],
+  "name": "ATTiny85 Clapper",
+  "onCreateCommand": [
+    "pre-commit",
+    "autoupdate"
+  ],
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined"
+  ],
+  "updateContentCommand": [
+    "pre-commit",
+    "install",
+    "--install-hooks"
+  ]
+}
