@@ -10,7 +10,7 @@ Project to build a sound-activated power toggle switch
 0. Flash chip
 0. (optional) Breadboard and debug
 0. Put components together
-0. Impress 80s children and toddler alike!
+0. Impress 80s kids and toddlers alike!
 
 ## Components
 
@@ -57,6 +57,8 @@ Required:
 - rustup
 - gcc-avr
 - avr-libc
+- pkg-config
+- libudev-dev
 - Patience
 
 Optional (but recommended):
@@ -85,4 +87,25 @@ pre-commit run --all
 
 ```Bash
 cargo build -Z build-std=core --release
+```
+
+## Flashing
+
+Convert file format and move to host machine file system.
+
+```bash
+# Convert to hex file
+objcopy -O ihex target/avr-attiny85/release/attiny85-clap-switch.elf target/avr-attiny85/release/attiny85-clap-switch.hex
+# (optional) copy to conveniently accessible Windows location
+cp target/avr-attiny85/release/attiny85-clap-switch.hex /mnt/d/
+```
+
+### Windows
+
+Download and extract the latest [micronucleus release](https://github.com/micronucleus/micronucleus/releases).
+You can use my [Shovel bucket](https://github.com/arichtman/shovel-bucket) if you prefer a managed install option.
+
+```powershell
+micronucleus.exe D:\attiny85-clap-switch.hex
+# Now plug the board in and it'll flash
 ```
