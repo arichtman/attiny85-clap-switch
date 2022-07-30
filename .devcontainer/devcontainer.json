@@ -8,7 +8,7 @@
       "extensions": [
         "vadimcn.vscode-lldb",
         "mutantdino.resourcemonitor",
-        "matklad.rust-analyzer",
+        "rust-lang.rust-analyzer",
         "tamasfe.even-better-toml",
         "serayuzgur.crates",
         "ms-azuretools.vscode-docker"
@@ -18,7 +18,9 @@
           "**/target/**": true
         },
         "lldb.executable": "/usr/bin/lldb",
-        "rust-analyzer.checkOnSave.command": "clippy"
+        "rust-analyzer.checkOnSave.allTargets": false,
+        "rust-analyzer.checkOnSave.command": "clippy",
+        "rust-analyzer.updates.channel": "nightly"
       }
     }
   },

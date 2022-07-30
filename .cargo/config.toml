@@ -3,7 +3,3 @@ target = "avr-attiny85.json"
 
 [unstable]
 build-std = ["core"]
-
-# Later we'll integrate ravedude for nicer flashing workflow
-# [target.'cfg(target_arch = "avr")']
-# runner = "ravedude uno -cb 57600"

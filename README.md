@@ -109,3 +109,14 @@ You can use my [Shovel bucket](https://github.com/arichtman/shovel-bucket) if yo
 micronucleus.exe D:\attiny85-clap-switch.hex
 # Now plug the board in and it'll flash
 ```
+
+## Misc
+
+Error: `can't find crate for test`
+Fix: Set `rust-analyzer.checkOnSave.allTargets = false`
+
+Error: `proc macro ``entry`` not expanded: failed to write request: Broken pipe (os error 32)rust-analyzerunresolved-proc-macro`
+Fix: Disable proc macros? Upgrade to nightly build of rust-analyzer?
+
+Error: `language item required, but not found: eh_personality`
+Fix: Ensure target is set in `.cargo/config.toml` and disable `--all-targets`
