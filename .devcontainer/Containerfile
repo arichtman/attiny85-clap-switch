@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/rust:1-${VARIANT}
 
 COPY pyproject.toml .
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt install -y -qq python3-pip gcc-avr avr-libc \
+    && apt install -y -qq python3-pip gcc-avr avr-libc libudev-dev avrdude usbip usbutils \
     # We have to remove distutils-installed PyYAML that comes with the image
     # ... causes issues when pip tries to remove or update it as it's unable
     # ... to fully uninstall it
@@ -14,7 +14,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && python3 -m pip install --upgrade pip \
     && pip3 install poetry --quiet \
     && poetry config virtualenvs.create false \
-    && poetry install --no-interaction \
-    && rustup toolchain install nightly \
+    && poetry install --no-interaction
+
+RUN rustup toolchain install nightly \
     && rustup override set nightly \
-    && rustup component add rustfmt rust-src
+    && rustup component add rustfmt rust-src \
+    && cargo install ravedude

@@ -9,6 +9,8 @@ rt = ["attiny-hal/rt"]
 
 [dependencies]
 panic-halt = "0.2.0"
+# libudev = "0.3.0"
+# libudev-sys = "0.1.4"
 
 [dependencies.attiny-hal]
 git = "https://github.com/rahix/avr-hal"
