@@ -1,7 +1,5 @@
 #![no_std]
 #![no_main]
-// not sure, got it from https://doc.rust-lang.org/stable/embedded-book/start/exceptions.html
-#![deny(unsafe_code)]
 // enables interrupt feature?
 #![feature(abi_avr_interrupt)]
 // to allow static mut peripherals
@@ -11,79 +9,72 @@ extern crate attiny_hal as hal;
 extern crate avr_device;
 extern crate panic_halt;
 
-// use hal::Peripherals;
-use hal::clock::*;
-use hal::delay::*;
-
-use embedded_hal::blocking::delay::DelayMs;
-
 use avr_device::interrupt;
 
-use core::borrow::Borrow;
+// Unsure how the compiler will treat this.
+// I don't believe there's a single bit primitve so _maybe_ bool will be same?
+// static mut BIT_BUFFER: [bool; 128] = [false; 128];
+// given we'll be doing bitwise operations we might as well start that way
+// initialise a 128-bit piece of memory to all 0s
+static mut SOUND_HISTORY: u128 = 0_u128;
+// Need to figure out a good way to create sample buffers from real audio
+// Don't think I have a way to retrieve data from running chip
+// So might need to use LEDs to signal a calibration period on boot?
+// would still prefer hard-coded sample buffer for constistency and persistence
+// TODO: Create reference pattern
+static REFERENCE_PATTERN: u128 = 123456789;
+// This is 25% error rate, pretty high but testing will reveal if that's the case
+// TODO: Tune error rate
+static DIFFERENCE_THRESHOLD: u8 = 32;
+// TODO: Tune sound threshold
+static SOUND_THRESHOLD: u8 = 128;
 
 #[hal::entry]
 fn main() -> ! {
+    // TODO: Solve for sharing pin control with ISR
     let peripherals = hal::pac::Peripherals::take().unwrap();
-
+    /* need to find out why this is different
+    let pins = hal::pins!(peripherals);
+    let mut pb1 = pins.pb1.borrow();
+     */
     // need to set COM0A0, COM0A1, COM0B0 COM0B1, WGM00, WGM01 to 0 in TCCR0A
     // I'm unsure why the raw bit writing takes u8 when it looks like only 2 bits
     // and we're lacking convenience functions like we have for TCCR0B
     // whatever, setting 0 should wipe the bits across all of them
-    let _tcc_r0a = &peripherals
+    let _ = &peripherals
         .TC0
         .tccr0a
         .write(|w| w.wgm0().bits(0_u8).com0a().bits(0_u8).com0b().bits(0_u8));
 
     // need to set CS02, CS00 to 1, CS01, WGM02 to 0 in TCR0B
     // luckily we have a convenience function for the CS register
-    let _tcc_r0b = &peripherals
+    let _ = &peripherals
         .TC0
         .tccr0b
         .write(|w| w.cs0().prescale_1024().wgm02().clear_bit());
 
-    // TODO: work out if we need this from embedded_hal or we can do away with that crate
-    let mut delay = Delay::<MHz16>::new();
-
-    let ports = &peripherals.PORTB.pinb;
-    // imma be real with you, idk about this borrowing stuff
-    let tifr = &peripherals.TC0.tifr.borrow();
-
-    let mut delay_time = 5000_u16;
     loop {
-        // let mut pins = hal::Pins::new(portb);
-        ports.write(|w| w.pb1().bit(!ports.read().pb1().bit()));
-        delay.delay_ms(delay_time);
-        // we'll test the interrupt is running by checking if the overflow triggers
-        // need to check TOV0 in TIFR for manual overflow handling
-        if tifr.read().tov0().bit_is_set() {
-            delay_time = 1000_u16;
-            tifr.reset();
-        }
+        // could put a noop here but it makes more sense to just let main run to completion
+        // I just can't solve this error yet
+        // implicitly returns `()` as its body has no tail or `return` expression
     }
 }
 
-/*
+// https://github.com/Rahix/avr-hal/blob/main/examples/arduino-uno/src/bin/uno-timer.rs
+// https://www.tutorialspoint.com/rust/rust_bitwise_operators.htm
 #[interrupt(attiny85)]
-fn TIMER0_OVF() {
-    // hal::pac::Peripherals::take() is a one-time operation, not sure how to borrow it out
-    // but I can't call it only in here as I need to set the timer pins once,
-    // I can't flag and set them in the interrupt as the interrupt would never trigger
-    // static mut peripherals: Peripherals = hal::pac::Peripherals::take().unwrap();
-
-
-    // https://doc.rust-lang.org/stable/embedded-book/start/interrupts.html
-    // that says it's fine but rust analyzer is complaining
-    // but it compiles fine??
-    static mut COUNT: u8 = 0;
-    *COUNT += 1;
-    // 128 * 0.016ms = 2.04 seconds
-    if *COUNT == 128 {
-        let peripherals = hal::pac::Peripherals::take().unwrap();
-        let ports = &peripherals.PORTB.pinb;
-        ports.write(|w| w
-            .pb1().bit(! ports.read().pb1().bit())
-        );
-        *COUNT = 0_u8;
+unsafe fn TIMER0_OVF() {
+    // bump everything left one spot, I'm unsure what will happen to the overflow but we don't really care anyway
+    SOUND_HISTORY <<= 1;
+    // TODO: Sort out pin control to read ADC
+    // IIRC division requires 2 same types and yields same output type
+    // This would mean our u8 defaults to like // or floor operator
+    // which is what we want
+    let mic_value = 128_u8;
+    SOUND_HISTORY |= (mic_value / SOUND_THRESHOLD) as u128;
+    // Calculate different bits
+    let diff = SOUND_HISTORY ^ REFERENCE_PATTERN;
+    if diff.count_ones() <= DIFFERENCE_THRESHOLD as u32 {
+        // Use pin control to toggle relay
     }
 }
-*/
