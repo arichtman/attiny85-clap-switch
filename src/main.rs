@@ -29,9 +29,17 @@ static DIFFERENCE_THRESHOLD: u8 = 32;
 // TODO: Tune sound threshold
 static SOUND_THRESHOLD: u8 = 128;
 
+// static mut PERIPHERALS: hal::Peripherals = _;
+
+// static mut PERIPHERALS: Option<hal::Peripherals> = None;
+pub struct PinControl {
+    periph: Option<hal::Peripherals>,
+}
+
+static mut PIN_CONTROL: PinControl = PinControl { periph: None };
+
 #[hal::entry]
-fn main() -> ! {
-    // TODO: Solve for sharing pin control with ISR
+unsafe fn main() -> ! {
     let peripherals = hal::pac::Peripherals::take().unwrap();
     /* need to find out why this is different
     let pins = hal::pins!(peripherals);
@@ -52,6 +60,7 @@ fn main() -> ! {
         .TC0
         .tccr0b
         .write(|w| w.cs0().prescale_1024().wgm02().clear_bit());
+    PIN_CONTROL.periph = Option::Some(peripherals);
 
     loop {
         // could put a noop here but it makes more sense to just let main run to completion
@@ -66,11 +75,12 @@ fn main() -> ! {
 unsafe fn TIMER0_OVF() {
     // bump everything left one spot, I'm unsure what will happen to the overflow but we don't really care anyway
     SOUND_HISTORY <<= 1;
+    let peripherals = &PIN_CONTROL.periph;
+    peripherals.as_ref();
+    let mic_value = 128_u8;
     // TODO: Sort out pin control to read ADC
     // IIRC division requires 2 same types and yields same output type
-    // This would mean our u8 defaults to like // or floor operator
-    // which is what we want
-    let mic_value = 128_u8;
+    // This would mean our u8 defaults to like // or floor operator, which suits us
     SOUND_HISTORY |= (mic_value / SOUND_THRESHOLD) as u128;
     // Calculate different bits
     let diff = SOUND_HISTORY ^ REFERENCE_PATTERN;
