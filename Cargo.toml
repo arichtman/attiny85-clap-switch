@@ -18,9 +18,7 @@ features = ["attiny85"]
 
 [dependencies.avr-device]
 version = "0.3.4"
-features = ["attiny85"
-#  ,"abi_avr_interrupt"
-]
+features = ["attiny85"]
 
 [profile.dev]
 panic = "abort"
