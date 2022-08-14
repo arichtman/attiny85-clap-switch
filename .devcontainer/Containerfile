@@ -17,4 +17,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && poetry install --no-interaction \
     && rustup toolchain install nightly \
     && rustup override set nightly \
-    && rustup component add rustfmt rust-src
+    && rustup component add rustfmt rust-src clippy
