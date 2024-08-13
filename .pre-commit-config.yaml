@@ -1,7 +1,7 @@
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.3.0
+  rev: v4.6.0
   hooks:
   - id: check-added-large-files
   - id: end-of-file-fixer
@@ -25,7 +25,7 @@ repos:
   - id: cargo-check
 
 - repo: https://github.com/jackdewinter/pymarkdown
-  rev: v0.9.7
+  rev: v0.9.22
   hooks:
   - id: pymarkdown
     args:

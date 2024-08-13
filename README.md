@@ -29,16 +29,37 @@ I have no affiliation with any of the purchase links and receive no commission o
 
 ## Design
 
-If we're going to measure anything time-sensitive, we cannot rely on `noop` or loops. Present thinking is to bind timer zero to internal clock @16.5Mhz mode with prescaling at maximum (1024). This'll set timer to 16,500,00 / 1024 = 16,113. That's frequency 1/16113 = 0.000,062 so a count every 62 microseconds. Max count before overflow is 256 so interrupt timing will be 256 * 0.000062 = 0.015872 which is about every 16 milliseconds. When the ISR trips we'll read the ADC for the mic value and store it to a FIFO queue in working memory. If the read is low and we're not in a listen state, that means no initial event to listen, and can simply not write to queue. When the initial read triggers high, we can start the listen sequence, maybe via flag. While the flag is active we'll count to a number of reads, enough to get about 2 seconds of audio data. At 16 milliseconds between reads that would be 2000 / 16 = 125, we'll round that to 128 for neatness. Available working memory is 512 bytes so we could store quite the queue of readings @ 256-bit granularity. I was thinking about looking for features like 2 local maximums in the first 50% of data points and one maximum in the last 25% but we're getting into math-heavy territory, I'm not sure the chip will have space nor time to do calculus, nor that it would even be advantageous, it also will hog a bunch more memory. For these reasons, we'll proess the readings on inpet into boolean/binary bits, indicating a "loud" or "quiet" read, and push that to the queue. Setting thresholds for loud and quiet reads might be tricky. It may be possible to maintain a rolling average from a secondary queue of readings to determine background noise, but that's more complication, and can go in the enhancement bin. I think we'll hook up more potentiometers to allow dynamic adjustment for development and likely hard-code the values. Maximum control would be to set separate thresholds for high and low but this clashes with reducing the values to bit-level granularity. Perhaps we'll include a control for this when installed, undecided. When ISR runs and listen count is 128 we'll do a bitwise xor between a reference queue in EEPROM as a CONST. This'll yield only bits different, which we can then aggregate by SUM. This differential can be divided by 128 to yield a loose % difference between what was recorded and what's expected. It doesn't account for timing very well but should be super fast and is much easier to tune with only one control mechanism, threshold for % difference. This control can be set via potentiometer for dynamic adjustment, setting to 100% similarity would effectively disable the mechanism. The threshold should have a higher floor value though, as setting it too low would result in just about anything triggering it. We can achieve this by scaling the potentiometer value to 100 - $Floor. 
+If we're going to measure anything time-sensitive, we cannot rely on `noop` or loops.
+Present thinking is to bind timer zero to internal clock @16.5Mhz mode with prescaling at maximum (1024).
+This'll set timer to 16,500,00 / 1024 = 16,113. That's frequency 1/16113 = 0.000,062 so a count every 62 microseconds.
+Max count before overflow is 256 so interrupt timing will be 256 * 0.000062 = 0.015872 which is about every 16 milliseconds.
+When the ISR trips we'll read the ADC for the mic value and store it to a FIFO queue in working memory.
+If the read is low and we're not in a listen state, that means no initial event to listen, and can simply not write to queue.
+When the initial read triggers high, we can start the listen sequence, maybe via flag.
+While the flag is active we'll count to a number of reads, enough to get about 2 seconds of audio data.
+At 16 milliseconds between reads that would be 2000 / 16 = 125, we'll round that to 128 for neatness.
+Available working memory is 512 bytes so we could store quite the queue of readings @ 256-bit granularity.
+I was thinking about looking for features like 2 local maximums in the first 50% of data points and one maximum in the last 25% but we're getting into math-heavy territory,
+I'm not sure the chip will have space nor time to do calculus, nor that it would even be advantageous, it also will hog a bunch more memory.
+For these reasons, we'll proess the readings on inpet into boolean/binary bits, indicating a "loud" or "quiet" read, and push that to the queue.
+Setting thresholds for loud and quiet reads might be tricky.
+It may be possible to maintain a rolling average from a secondary queue of readings to determine background noise, but that's more complication, and can go in the enhancement bin.
+I think we'll hook up more potentiometers to allow dynamic adjustment for development and likely hard-code the values.
+Maximum control would be to set separate thresholds for high and low but this clashes with reducing the values to bit-level granularity.
+Perhaps we'll include a control for this when installed, undecided.
+When ISR runs and listen count is 128 we'll do a bitwise xor between a reference queue in EEPROM as a CONST.
+This'll yield only bits different, which we can then aggregate by SUM.
+This differential can be divided by 128 to yield a loose % difference between what was recorded and what's expected.
+It doesn't account for timing very well but should be super fast and is much easier to tune with only one control mechanism, threshold for % difference.
+This control can be set via potentiometer for dynamic adjustment, setting to 100% similarity would effectively disable the mechanism.
+The threshold should have a higher floor value though, as setting it too low would result in just about anything triggering it.
+We can achieve this by scaling the potentiometer value to 100 - $Floor.
 
 ## Development setup
 
 ### Magic way
 
-0. Open project using VSCode Devcontainers
-
-NB: You will need the mount directories to at least exist for this to load correctly.
-`mkdir -p $HOME/.local/share/cargo/registry $HOME/.config`
+Use nix-direnv and Nix
 
 ### PITA
 

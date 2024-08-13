@@ -1,8 +1,5 @@
 {
   "plugins": {
-    "md013": {
-      "line_length": 120
-    },
     "md029": {
       "style": "zero"
     }

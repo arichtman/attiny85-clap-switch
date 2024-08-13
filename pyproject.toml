@@ -14,3 +14,7 @@ pre-commit = "^2.20.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pymarkdown]
+plugins.line-length.line_length = 180
+plugins.line-length.code_block_line_length = 180
