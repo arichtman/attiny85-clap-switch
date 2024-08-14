@@ -60,8 +60,6 @@
             cargo-watch
             rust-analyzer
             avrdude
-            # Required for error ld: framework not found SystemConfiguration
-            darwin.apple_sdk.frameworks.SystemConfiguration
           ];
           shellHook = ''
             pre-commit install --install-hooks
