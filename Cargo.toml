@@ -3,32 +3,20 @@ name = "attiny85-clap-switch"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-default = ["rt"]
-rt = ["attiny-hal/rt"]
-
 [dependencies]
-panic-halt = "0.2.0"
+attiny-hal = { git = "https://github.com/rahix/avr-hal", features = ["attiny85"] }
+avr-device = {version = "0.5.4", features = ["rt"]}
 embedded-hal = "0.2.7"
-
-[dependencies.attiny-hal]
-git = "https://github.com/rahix/avr-hal"
-rev = "f99550debcd9a168da4486fed4388caaee067aa9"
-features = ["attiny85"]
-
-[dependencies.avr-device]
-version = "0.3.4"
-features = ["attiny85"]
+panic-halt = "0.2.0"
 
 [profile.dev]
 panic = "abort"
 lto = true
 opt-level = "s"
-debug-assertions = false
 
 [profile.release]
 panic = "abort"
+codegen-units = 1
+debug = true
 lto = true
 opt-level = "s"
-debug-assertions = false
-codegen-units = 1

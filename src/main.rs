@@ -8,7 +8,7 @@ extern crate attiny_hal as hal;
 extern crate avr_device;
 extern crate panic_halt;
 
-use avr_device::interrupt;
+pub use avr_device::interrupt;
 use core::mem;
 use embedded_hal::blocking::delay::DelayMs;
 use hal::{clock::MHz16, delay::Delay, port::mode::*, port::Pin, port::*, Adc, Peripherals};
@@ -23,7 +23,8 @@ static mut DEVICE_ADC: mem::MaybeUninit<Adc<MHz16>> = mem::MaybeUninit::uninit()
 
 static mut DELAY_TIME: u16 = 512_u16;
 
-#[hal::entry]
+// #[hal::entry]
+#[no_mangle]
 /// This file is presently configured for testing/prototyping
 /// Current aim is to check test the TC0 ISR reading the free-read ADC
 fn main() -> ! {
@@ -69,7 +70,7 @@ fn main() -> ! {
     }
 }
 
-#[interrupt(attiny85)]
+#[avr_device::interrupt(attiny85)]
 unsafe fn TIMER0_OVF() {
     // TODO: look into doing a partial or something so the adc reference is already passed
     // https://docs.rs/partial_application/latest/partial_application/
