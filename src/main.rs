@@ -17,6 +17,7 @@ use hal::{clock::MHz16, delay::Delay, port::mode::*, port::Pin, port::*, Adc, Pe
 //   but this seems to be a valid approach. Wish I could dispose of the main function's handle on it though for surety
 // TODO: Consult with someone to determine if this is an appropriate use of statics
 // TODO: Look into genericising this so it's not coupled to the particular pin we're using
+// TODO: Do we need static, or would const serve?
 static mut LED_OUTPUT: mem::MaybeUninit<Pin<Output, PB0>> = mem::MaybeUninit::uninit();
 static mut ADC_INPUT: mem::MaybeUninit<Pin<Analog, PB3>> = mem::MaybeUninit::uninit();
 static mut DEVICE_ADC: mem::MaybeUninit<Adc<MHz16>> = mem::MaybeUninit::uninit();
